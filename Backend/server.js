@@ -6,7 +6,8 @@ import bodyParser from 'body-parser';
 
 //import routes
 
-import driverRoutes from './routes/driver.routes.js'
+import driverRoutes from './routes/driver.routes.js';
+import loginRoutes from './routes/auth.route.js';
 
 const app = express();
 
@@ -27,6 +28,7 @@ connection.once('open', () => {
 });
 
 app.use('/driver', driverRoutes);
+app.use('/auth', loginRoutes);
 
 app.listen(PORT, () => {
     console.log( `App is running on ${PORT}`);
