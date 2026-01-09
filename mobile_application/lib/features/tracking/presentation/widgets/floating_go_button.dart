@@ -1,73 +1,72 @@
-// features/tracking/presentation/widgets/floating_go_button.dart
+// features/tracking/presentation/widgets/floating_go_action.dart
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 
-class FloatingGoButton extends StatefulWidget {
+class FloatingGoAction extends StatefulWidget {
   final bool isOnline;
-  final VoidCallback onPressed;
+  final VoidCallback onGoOnline;
 
-  const FloatingGoButton({
+  const FloatingGoAction({
     super.key,
     required this.isOnline,
-    required this.onPressed,
+    required this.onGoOnline,
   });
 
   @override
-  State<FloatingGoButton> createState() => _FloatingGoButtonState();
+  State<FloatingGoAction> createState() => _FloatingGoActionState();
 }
 
-class _FloatingGoButtonState extends State<FloatingGoButton> {
+class _FloatingGoActionState extends State<FloatingGoAction> {
   bool _isVisible = true;
 
   @override
-  void didUpdateWidget(covariant FloatingGoButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Show button again when going offline
-    if (oldWidget.isOnline && !widget.isOnline) {
-      setState(() => _isVisible = true);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (!_isVisible || widget.isOnline) {
+    if (widget.isOnline || !_isVisible) {
       return const SizedBox.shrink();
     }
 
     return Positioned(
-      bottom: 110, // Positioned above the toggle bar
-      left: 0,
-      right: 0,
-      child: Center(
-        child: GestureDetector(
-          onTap: () {
-            widget.onPressed();
-            setState(() => _isVisible = false);
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Colors.green,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.green.withOpacity(0.5),
-                  blurRadius: 25,
-                  spreadRadius: 5,
+      bottom: 100,
+      right: 20,
+      child: GestureDetector(
+        onTap: () {
+          widget.onGoOnline();
+          setState(() => _isVisible = false);
+        },
+        child: Container(
+          width: 72,
+          height: 72,
+          decoration: BoxDecoration(
+            color: AppColors.onlineGreen,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.onlineGreen.withOpacity(0.4),
+                blurRadius: 30,
+                spreadRadius: 5,
+              ),
+            ],
+          ),
+          child: const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.play_arrow,
+                  color: Colors.white,
+                  size: 32,
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'GO',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1,
+                  ),
                 ),
               ],
-            ),
-            child: const Center(
-              child: Text(
-                'GO',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
-                ),
-              ),
             ),
           ),
         ),

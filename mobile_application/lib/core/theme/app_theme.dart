@@ -2,21 +2,18 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // In AppColors class, add:
-  static const Color uberBlack = Color(0xFF000000);
-  static const Color uberWhite = Color(0xFFFFFFFF);
-  static const Color uberGreen = Color(0xFF00D1C1); // Uber green/teal
-  static const Color uberLightGray = Color(0xFFF7F7F7);
-  static const Color uberGray = Color(0xFFCCCCCC);
-  static const Color uberDarkGray = Color(0xFF666666);
-  static const Color uberRed = Color(0xFFF9423A);
-  // Light Theme Colors
-  static const Color primaryBlue = Color(0xFF2563EB);
+  // Primary Colors (Blue theme)
+  static const Color primaryBlue = Color(0xFF1E40AF); // Darker blue for better visibility
   static const Color secondaryBlue = Color(0xFF3B82F6);
-  static const Color accentBlue = Color(0xFF60A5FA);
   static const Color lightBlue = Color(0xFFDBEAFE);
+  static const Color accentBlue = Color(0xFF60A5FA);
   
-  // Neutral Colors
+  // Status Colors
+  static const Color onlineGreen = Color(0xFF10B981); // Brighter green
+  static const Color offlineRed = Color(0xFFEF4444); // Brighter red
+  static const Color warningYellow = Color(0xFFF59E0B);
+  
+  // Neutral Colors (Higher contrast)
   static const Color black = Color(0xFF1F2937);
   static const Color darkGray = Color(0xFF4B5563);
   static const Color mediumGray = Color(0xFF9CA3AF);
@@ -25,11 +22,12 @@ class AppColors {
   static const Color background = Color(0xFFF9FAFB);
   
   // Dark Theme Colors
-  static const Color darkPrimary = Color(0xFF1E40AF);
-  static const Color darkSecondary = Color(0xFF1E3A8A);
+  static const Color darkPrimary = Color(0xFF3B82F6);
+  static const Color darkSecondary = Color(0xFF1E40AF);
   static const Color darkBackground = Color(0xFF111827);
   static const Color darkSurface = Color(0xFF1F2937);
   static const Color darkText = Color(0xFFF9FAFB);
+  static const Color darkCard = Color(0xFF374151);
 }
 
 class AppTheme {

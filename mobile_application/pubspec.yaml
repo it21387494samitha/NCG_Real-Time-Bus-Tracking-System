@@ -54,6 +54,8 @@ dependencies:
   logger: ^2.6.2
   flutter_svg: ^2.2.3
   jwt_decoder: ^2.0.1
+  flutter_dotenv: ^6.0.0
+  liquid_glass_bottom_bar: ^0.0.6
 
 dev_dependencies:
   flutter_test:

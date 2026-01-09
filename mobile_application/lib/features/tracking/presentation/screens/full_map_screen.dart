@@ -4,11 +4,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/providers/map_provider.dart';
 import '../../../../core/providers/theme_provider.dart';
+import '../widgets/dynamic_island.dart';
+import '../widgets/status_indicator.dart';
 import '../widgets/map_controls.dart';
-import '../widgets/location_info_button.dart';
+import '../widgets/bottom_online_panel.dart';
+import '../widgets/floating_go_button.dart';
 
 class FullMapScreen extends ConsumerStatefulWidget {
-  const FullMapScreen({super.key});
+  final bool isOnline;
+  final VoidCallback onGoOnline;
+  final VoidCallback onGoOffline;
+
+  const FullMapScreen({
+    super.key,
+    required this.isOnline,
+    required this.onGoOnline,
+    required this.onGoOffline,
+  });
 
   @override
   ConsumerState<FullMapScreen> createState() => _FullMapScreenState();
@@ -19,7 +31,34 @@ class _FullMapScreenState extends ConsumerState<FullMapScreen> {
   bool _isMapReady = false;
   double _currentZoom = 15;
   CameraPosition? _lastCameraPosition;
-
+  bool _isDynamicIslandExpanded = false;
+  
+  final List<Map<String, dynamic>> _mockCustomers = [
+    {
+      'name': 'John Smith',
+      'phone': '+94 77 123 4567',
+      'seat': 'A12',
+      'distance': 2.5,
+      'eta': '15 min',
+    },
+    {
+      'name': 'Sarah Johnson',
+      'phone': '+94 76 987 6543',
+      'seat': 'B05',
+      'distance': 4.2,
+      'eta': '25 min',
+    },
+    {
+      'name': 'Robert Brown',
+      'phone': '+94 71 456 7890',
+      'seat': 'C18',
+      'distance': 1.8,
+      'eta': '10 min',
+    },
+  ];
+  
+  int _currentCustomerIndex = 0;
+  
   @override
   void initState() {
     super.initState();
@@ -27,12 +66,71 @@ class _FullMapScreenState extends ConsumerState<FullMapScreen> {
       ref.read(mapProvider.notifier).getCurrentLocation();
     });
   }
+  
+  void _toggleDynamicIsland() {
+    setState(() {
+      _isDynamicIslandExpanded = !_isDynamicIslandExpanded;
+    });
+  }
+  
+  void _nextCustomer() {
+    setState(() {
+      _currentCustomerIndex = (_currentCustomerIndex + 1) % _mockCustomers.length;
+    });
+  }
+  
+  void _resetCompass() {
+    if (_mapController != null && _lastCameraPosition != null) {
+      _mapController!.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: _lastCameraPosition!.target,
+            zoom: _lastCameraPosition!.zoom,
+            bearing: 0,
+            tilt: 0,
+          ),
+        ),
+      );
+    }
+  }
 
+  void _goToMyLocation() {
+    final mapState = ref.read(mapProvider);
+    if (mapState.currentLocation != null && _mapController != null) {
+      _mapController!.animateCamera(
+        CameraUpdate.newLatLngZoom(
+          mapState.currentLocation!,
+          16,
+        ),
+      );
+    }
+  }
+
+  void _zoomIn() {
+    if (_mapController != null) {
+      setState(() => _currentZoom += 1);
+      _mapController!.animateCamera(CameraUpdate.zoomIn());
+    }
+  }
+
+  void _zoomOut() {
+    if (_mapController != null) {
+      setState(() => _currentZoom -= 1);
+      _mapController!.animateCamera(CameraUpdate.zoomOut());
+    }
+  }
+  
+  void _toggleTheme() {
+    final themeNotifier = ref.read(themeProvider.notifier);
+    themeNotifier.toggleTheme();
+  }
+  
   @override
   Widget build(BuildContext context) {
     final mapState = ref.watch(mapProvider);
-    final themeState = ref.watch(themeProvider);
     final themeNotifier = ref.read(themeProvider.notifier);
+    
+    final customer = _mockCustomers[_currentCustomerIndex];
     
     return Scaffold(
       body: Stack(
@@ -70,103 +168,55 @@ class _FullMapScreenState extends ConsumerState<FullMapScreen> {
             mapToolbarEnabled: false,
           ),
 
-          // App Bar with back button and theme toggle
+          // Top Bar with Back Button
           Positioned(
-            top: MediaQuery.of(context).padding.top,
-            left: 0,
-            right: 0,
+            top: MediaQuery.of(context).padding.top + 12,
+            left: 16,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: Colors.transparent,
-              child: Row(
-                children: [
-                  // Back Button
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () => Navigator.pop(context),
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                  
-                  const Spacer(),
-                  
-                  // Online Status
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 10,
-                          height: 10,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.green,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Online',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  const SizedBox(width: 12),
-                  
-                  // Theme Toggle Button (Sun/Moon)
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        themeState.themeData.brightness == Brightness.dark
-                            ? Icons.light_mode
-                            : Icons.dark_mode,
-                      ),
-                      onPressed: () {
-                        themeNotifier.toggleTheme();
-                      },
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 15,
+                    spreadRadius: 1,
                   ),
                 ],
               ),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.pop(context),
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ),
-
+          
+          // Dynamic Island (Center Top)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 12,
+            left: 0,
+            right: 0,
+            child: Align(
+              child: DynamicIsland(
+                isExpanded: _isDynamicIslandExpanded,
+                onTap: _toggleDynamicIsland,
+                distance: customer['distance'],
+                customerName: customer['name'],
+                phoneNumber: customer['phone'],
+                seatNumber: customer['seat'],
+                eta: customer['eta'],
+              ),
+            ),
+          ),
+          
+          // Status Indicator with Info (Top Right)
+          StatusIndicator(
+            isOnline: widget.isOnline,
+            currentLocation: mapState.currentLocation,
+            onThemeToggle: _toggleTheme,
+          ),
+          
           // Map Controls
           if (_isMapReady)
             MapControls(
@@ -174,166 +224,72 @@ class _FullMapScreenState extends ConsumerState<FullMapScreen> {
               onLocationTap: _goToMyLocation,
               onZoomIn: _zoomIn,
               onZoomOut: _zoomOut,
+              currentZoom: _currentZoom,
             ),
-
-          // Location Info Button (top right)
-          LocationInfoButton(location: mapState.currentLocation),
-
-          // Zoom Level Indicator
-          Positioned(
-            bottom: 120,
-            left: 16,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.zoom_in_map,
-                    size: 16,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    '${_currentZoom.toStringAsFixed(1)}x',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
           
-          // Bottom Bar with coordinates
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    spreadRadius: 1,
+          // Next Customer Button (if dynamic island is collapsed)
+          if (!_isDynamicIslandExpanded)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 12 + 60, // Below dynamic island
+              right: 16,
+              child: GestureDetector(
+                onTap: _nextCustomer,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 15,
+                        spreadRadius: 1,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (mapState.currentLocation != null)
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Current Location',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${mapState.currentLocation!.latitude.toStringAsFixed(6)}, ${mapState.currentLocation!.longitude.toStringAsFixed(6)}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                        ],
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.swipe_right_alt,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
-                    ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TextButton(
-                      onPressed: () {
-                        // TODO: Go offline
-                        Navigator.pop(context);
-                      },
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                      ),
-                      child: const Text(
-                        'Go Offline',
+                      const SizedBox(width: 6),
+                      Text(
+                        'Next',
                         style: TextStyle(
-                          color: Colors.white,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
+          
+          // Bottom Online/Offline Panel
+          BottomOnlinePanel(
+            isOnline: widget.isOnline,
+            onGoOnline: widget.onGoOnline,
+            onGoOffline: widget.onGoOffline,
+            showInFullMap: true,
           ),
+          
+          // Floating Go Action (when offline)
+          if (!widget.isOnline)
+            Positioned(
+              bottom: 100,
+              right: 20,
+              child: FloatingGoAction(
+                isOnline: widget.isOnline,
+                onGoOnline: widget.onGoOnline,
+              ),
+            ),
         ],
       ),
     );
-  }
-
-  void _resetCompass() {
-    if (_mapController != null && _lastCameraPosition != null) {
-      _mapController!.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: _lastCameraPosition!.target,
-            zoom: _lastCameraPosition!.zoom,
-            bearing: 0,
-            tilt: 0,
-          ),
-        ),
-      );
-    }
-  }
-
-  void _goToMyLocation() {
-    final mapState = ref.read(mapProvider);
-    if (mapState.currentLocation != null && _mapController != null) {
-      _mapController!.animateCamera(
-        CameraUpdate.newLatLngZoom(
-          mapState.currentLocation!,
-          16,
-        ),
-      );
-    }
-  }
-
-  void _zoomIn() {
-    if (_mapController != null) {
-      _mapController!.animateCamera(CameraUpdate.zoomIn());
-    }
-  }
-
-  void _zoomOut() {
-    if (_mapController != null) {
-      _mapController!.animateCamera(CameraUpdate.zoomOut());
-    }
   }
 
   @override

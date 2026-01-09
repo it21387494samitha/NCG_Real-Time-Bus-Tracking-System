@@ -45,16 +45,8 @@ class _MapPreviewState extends ConsumerState<MapPreview> {
       onTap: widget.onTap,
       child: Container(
         height: widget.height,
-        margin: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 15,
-              spreadRadius: 2,
-            ),
-          ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),

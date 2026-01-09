@@ -1,11 +1,12 @@
-// features/tracking/presentation/widgets/map_controls.dart
+// features/tracking/presentation/widgets/enhanced_map_controls.dart
 import 'package:flutter/material.dart';
 
-class MapControls extends StatelessWidget {
+class MapControls extends StatefulWidget {
   final VoidCallback onCompassTap;
   final VoidCallback onLocationTap;
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
+  final double currentZoom;
 
   const MapControls({
     super.key,
@@ -13,52 +14,123 @@ class MapControls extends StatelessWidget {
     required this.onLocationTap,
     required this.onZoomIn,
     required this.onZoomOut,
+    required this.currentZoom,
   });
+
+  @override
+  State<MapControls> createState() => _MapControlsState();
+}
+
+class _MapControlsState extends State<MapControls> {
+  bool _showZoomLevel = false;
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
       right: 16,
-      bottom: 120,
+      bottom: 140, // Positioned above bottom panel
       child: Column(
         children: [
-          // Compass Button
-          _ControlButton(
-            icon: Icons.explore_outlined,
-            onPressed: onCompassTap,
-            tooltip: 'Compass',
+          // Zoom Level Indicator
+          GestureDetector(
+            onTap: () => setState(() => _showZoomLevel = !_showZoomLevel),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              width: _showZoomLevel ? 80 : 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 15,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.zoom_in_map,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  if (_showZoomLevel) ...[
+                    const SizedBox(width: 6),
+                    Text(
+                      '${widget.currentZoom.toStringAsFixed(1)}x',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
+          
+          const SizedBox(height: 12),
+          
+          // Compass Button
+          _MapControlButton(
+            icon: Icons.explore,
+            tooltip: 'Reset compass',
+            onPressed: widget.onCompassTap,
+            context: context,
+          ),
+          
           const SizedBox(height: 12),
           
           // Location Button
-          _ControlButton(
+          _MapControlButton(
             icon: Icons.my_location,
-            onPressed: onLocationTap,
-            tooltip: 'My Location',
+            tooltip: 'Go to my location',
+            onPressed: widget.onLocationTap,
+            context: context,
           ),
+          
           const SizedBox(height: 12),
           
-          // Zoom Controls
-          Column(
-            children: [
-              _ControlButton(
-                icon: Icons.add,
-                onPressed: onZoomIn,
-                tooltip: 'Zoom In',
-                size: 40,
-              ),
-              Container(
-                width: 40,
-                height: 1,
-                color: Colors.grey[300],
-              ),
-              _ControlButton(
-                icon: Icons.remove,
-                onPressed: onZoomOut,
-                tooltip: 'Zoom Out',
-                size: 40,
-              ),
-            ],
+          // Zoom Controls Container
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 15,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                _MapControlButton(
+                  icon: Icons.add,
+                  tooltip: 'Zoom in',
+                  onPressed: widget.onZoomIn,
+                  size: 40,
+                  context: context,
+                ),
+                Container(
+                  width: 40,
+                  height: 1,
+                  color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+                ),
+                _MapControlButton(
+                  icon: Icons.remove,
+                  tooltip: 'Zoom out',
+                  onPressed: widget.onZoomOut,
+                  size: 40,
+                  context: context,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -66,45 +138,43 @@ class MapControls extends StatelessWidget {
   }
 }
 
-class _ControlButton extends StatelessWidget {
+class _MapControlButton extends StatelessWidget {
   final IconData icon;
-  final VoidCallback onPressed;
   final String tooltip;
+  final VoidCallback onPressed;
   final double size;
+  final BuildContext context;
 
-  const _ControlButton({
+  const _MapControlButton({
     required this.icon,
-    required this.onPressed,
     required this.tooltip,
+    required this.onPressed,
     this.size = 44,
+    required this.context,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onPressed,
-          child: SizedBox(
-            width: size,
-            height: size,
-            child: Icon(
-              icon,
-              color: Theme.of(context).colorScheme.onSurface,
-              size: 20,
+    return Tooltip(
+      message: tooltip,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(size / 2),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(size / 2),
+            onTap: onPressed,
+            child: Center(
+              child: Icon(
+                icon,
+                size: 20,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ),
         ),

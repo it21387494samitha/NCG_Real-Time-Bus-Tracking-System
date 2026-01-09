@@ -1,6 +1,5 @@
 // features/tracking/presentation/screens/calendar_screen.dart
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../../../core/data/mock_data.dart';
 
 class CalendarScreen extends StatelessWidget {
@@ -13,7 +12,7 @@ class CalendarScreen extends StatelessWidget {
         title: const Text('Schedule'),
       ),
       body: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
         itemCount: MockData.driverSchedule.length,
         itemBuilder: (context, index) {
           final shift = MockData.driverSchedule[index];

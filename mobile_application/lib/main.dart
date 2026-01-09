@@ -6,7 +6,6 @@ import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/screens/login.dart';
 import 'features/auth/presentation/screens/permission_screen.dart';
 import 'features/tracking/presentation/screens/home.dart';
-import 'features/tracking/presentation/screens/full_map_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +33,6 @@ class BusTrackerApp extends ConsumerWidget {
         '/login': (context) => const LoginScreen(),
         '/permissions': (context) => const PermissionScreen(),
         '/home': (context) => const HomeScreen(),
-        '/full-map': (context) => const FullMapScreen(),
       },
       debugShowCheckedModeBanner: false,
     );
