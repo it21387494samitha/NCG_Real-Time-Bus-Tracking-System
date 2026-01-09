@@ -42,7 +42,7 @@ const PermitPage: React.FC = () => {
 
     return (
         <div className="max-w-xl mx-auto mt-12 p-8 bg-white rounded-3xl shadow-lg">
-            <h1 className="text-3xl font-bold mb-2">Add Permit</h1>
+            <h1 className="text-3xl font-bold mb-2 text-blue-950">Add Permit</h1>
             <p className="text-gray-500 mb-8">Fill in the permit details and assign a route.</p>
             <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Permit Information Section */}

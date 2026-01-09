@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Header from "./admin-dashboard/header/Header";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
@@ -37,28 +38,7 @@ export default function AdminDashboard() {
       }
     >
       {/* Top Bar */}
-      <header className="flex items-center justify-between px-10 py-5 backdrop-blur-md bg-white/40 dark:bg-white/10 shadow-lg border border-white/40 dark:border-white/10 rounded-b-2xl">
-        <h1 className="text-2xl font-bold">MAGIYA.LK</h1>
-
-        <div className="flex items-center gap-4">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="px-3 py-2 rounded-xl bg-white/60 dark:bg-white/10 backdrop-blur border border-white/40 dark:border-white/10 focus:ring-2 focus:ring-blue-400"
-          />
-
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="px-3 py-2 rounded-xl bg-white/60 dark:bg-white/10 backdrop-blur border border-white/40 dark:border-white/10"
-          >
-            {darkMode ? "🌙" : "☀️"}
-          </button>
-
-          <div className="w-9 h-9 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur flex items-center justify-center font-bold border border-white/40 dark:border-white/10">
-            A
-          </div>
-        </div>
-      </header>
+        <Header darkMode={darkMode} setDarkMode={setDarkMode} />
 
       {/* Layout */}
       <div className="flex">

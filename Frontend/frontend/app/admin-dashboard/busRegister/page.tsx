@@ -34,8 +34,9 @@ const BusRegister: React.FC = () => {
     };
 
     return (
-        <div className="max-w-xl mx-auto mt-12 p-8 bg-white rounded-3xl shadow-lg">
-            <h1 className="text-3xl font-bold mb-2">Register New Bus</h1>
+        <div className='bg-gray-900'>
+             <div className="max-w-xl mx-auto mt-12 p-8 bg-white rounded-3xl shadow-lg">
+            <h1 className="text-3xl font-bold mb-2 text-blue-950">Register New Bus</h1>
             <p className="text-gray-500 mb-8">Enter bus details and assign a permit.</p>
             <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Bus Information Section */}
@@ -112,6 +113,8 @@ const BusRegister: React.FC = () => {
                 </button>
             </form>
         </div>
+        </div>
+       
     );
 };
 
