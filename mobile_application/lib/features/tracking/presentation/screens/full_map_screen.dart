@@ -5,7 +5,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/providers/map_provider.dart';
 import '../../../../core/providers/theme_provider.dart';
 import '../widgets/dynamic_island.dart';
-import '../widgets/status_indicator.dart';
 import '../widgets/map_controls.dart';
 import '../widgets/bottom_online_panel.dart';
 import '../widgets/floating_go_button.dart';
@@ -185,7 +184,7 @@ class _FullMapScreenState extends ConsumerState<FullMapScreen> {
                 ],
               ),
               child: IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(Icons.home),
                 onPressed: () => Navigator.pop(context),
                 color: Theme.of(context).colorScheme.onSurface,
               ),
@@ -211,12 +210,12 @@ class _FullMapScreenState extends ConsumerState<FullMapScreen> {
           ),
           
           // Status Indicator with Info (Top Right)
-          StatusIndicator(
+          /*StatusIndicator(
             isOnline: widget.isOnline,
             currentLocation: mapState.currentLocation,
             onThemeToggle: _toggleTheme,
           ),
-          
+          */
           // Map Controls
           if (_isMapReady)
             MapControls(
@@ -226,7 +225,7 @@ class _FullMapScreenState extends ConsumerState<FullMapScreen> {
               onZoomOut: _zoomOut,
               currentZoom: _currentZoom,
             ),
-          
+          /*
           // Next Customer Button (if dynamic island is collapsed)
           if (!_isDynamicIslandExpanded)
             Positioned(
@@ -268,7 +267,7 @@ class _FullMapScreenState extends ConsumerState<FullMapScreen> {
                 ),
               ),
             ),
-          
+          */
           // Bottom Online/Offline Panel
           BottomOnlinePanel(
             isOnline: widget.isOnline,

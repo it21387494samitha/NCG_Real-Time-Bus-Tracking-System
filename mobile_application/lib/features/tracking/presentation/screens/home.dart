@@ -7,7 +7,6 @@ import 'full_map_screen.dart';
 import '../widgets/map_preview.dart';
 import '../widgets/todays_schedule.dart';
 import '../widgets/bottom_nav_bar.dart';
-import '../widgets/status_indicator.dart';
 import '../../../../core/theme/app_theme.dart';
 import 'calendar.dart';
 import '../../../profile/presentation/screens/settings.dart';

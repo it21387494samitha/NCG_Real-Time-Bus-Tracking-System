@@ -1,6 +1,6 @@
 // features/tracking/presentation/widgets/floating_go_action.dart
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_theme.dart';
+import 'package:flutter/services.dart';
 
 class FloatingGoAction extends StatefulWidget {
   final bool isOnline;
@@ -16,8 +16,29 @@ class FloatingGoAction extends StatefulWidget {
   State<FloatingGoAction> createState() => _FloatingGoActionState();
 }
 
-class _FloatingGoActionState extends State<FloatingGoAction> {
+class _FloatingGoActionState extends State<FloatingGoAction> with SingleTickerProviderStateMixin {
   bool _isVisible = true;
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,47 +47,51 @@ class _FloatingGoActionState extends State<FloatingGoAction> {
     }
 
     return Positioned(
-      bottom: 100,
-      right: 20,
-      child: GestureDetector(
-        onTap: () {
-          widget.onGoOnline();
-          setState(() => _isVisible = false);
-        },
-        child: Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            color: AppColors.onlineGreen,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.onlineGreen.withOpacity(0.4),
-                blurRadius: 30,
-                spreadRadius: 5,
-              ),
-            ],
-          ),
-          child: const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.play_arrow,
-                  color: Colors.white,
-                  size: 32,
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'GO',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1,
-                  ),
+      bottom: 110,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: GestureDetector(
+          onTap: () {
+            SystemSound.play(SystemSoundType.click);
+            widget.onGoOnline();
+            setState(() => _isVisible = false);
+          },
+          child: Container(
+            width: 85,
+            height: 85,
+            decoration: BoxDecoration(
+              color: Colors.lightBlue,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  offset: const Offset(0, 8),
+                  blurRadius: 15,
+                  spreadRadius: 1,
                 ),
               ],
+            ),
+            padding: const EdgeInsets.all(6),
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 3),
+                ),
+                child: const Center(
+                  child: Text(
+                    'GO',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),

@@ -12,10 +12,12 @@ class LocationInfoButton extends StatefulWidget {
 }
 
 class _LocationInfoButtonState extends State<LocationInfoButton> {
-  bool _isExpanded = false;
+  final bool _isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
+    return const SizedBox.shrink();
+/*
     if (widget.location == null) return const SizedBox.shrink();
 
     return Positioned(
@@ -102,6 +104,7 @@ class _LocationInfoButtonState extends State<LocationInfoButton> {
         ],
       ),
     );
+*/
   }
 }
 

@@ -41,23 +41,23 @@ class _DynamicIslandState extends State<DynamicIsland> with SingleTickerProvider
     );
     
     _heightAnimation = Tween<double>(
-      begin: 50,
-      end: 180,
+      begin: 83,
+      end: 339,
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
     ));
     
     _widthAnimation = Tween<double>(
-      begin: 180,
-      end: 300,
+      begin: 150,
+      end: 260,
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
     ));
     
     _borderRadiusAnimation = Tween<double>(
-      begin: 25,
+      begin: 35,
       end: 20,
     ).animate(CurvedAnimation(
       parent: _controller,
@@ -98,30 +98,54 @@ class _DynamicIslandState extends State<DynamicIsland> with SingleTickerProvider
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        return GestureDetector(
-          onTap: widget.onTap,
-          child: Container(
-            width: _widthAnimation.value,
-            height: _heightAnimation.value,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(_borderRadiusAnimation.value),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 20,
-                  spreadRadius: 2,
-                  offset: const Offset(0, 4),
+        final colorScheme = Theme.of(context).colorScheme;
+        final topColor = Color.lerp(colorScheme.primary, colorScheme.surface, _controller.value)!;
+        final bottomColor = colorScheme.surface;
+        final splitHeight = _heightAnimation.value * 0.5;
+        final splitRatio = splitHeight / _heightAnimation.value;
+
+        return TapRegion(
+          onTapOutside: (event) {
+            if (widget.isExpanded) {
+              widget.onTap();
+            }
+          },
+          child: GestureDetector(
+            onTap: widget.onTap,
+            child: Container(
+              width: _widthAnimation.value,
+              height: _heightAnimation.value,
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    topColor,
+                    topColor,
+                    bottomColor,
+                    bottomColor,
+                  ],
+                  stops: [0, splitRatio, splitRatio, 1],
                 ),
-              ],
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
-                width: 1,
+                borderRadius: BorderRadius.circular(_borderRadiusAnimation.value),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+                  width: 1,
+                ),
               ),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(_controller.value > 0.5 ? 20 : 12),
-              child: _buildContent(context),
+              child: Padding(
+                padding: EdgeInsets.all(_controller.value > 0.5 ? 20 : 12),
+                child: _buildContent(context),
+              ),
             ),
           ),
         );
@@ -132,33 +156,32 @@ class _DynamicIslandState extends State<DynamicIsland> with SingleTickerProvider
   Widget _buildContent(BuildContext context) {
     if (_controller.value < 0.5) {
       // Collapsed state - Show only distance
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.person_pin_circle,
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'NEXT PICKUP',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.5,
+              color: Color.lerp(
+                Theme.of(context).colorScheme.onPrimary,
+                Theme.of(context).colorScheme.outline,
+                _controller.value,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '${widget.distance.toStringAsFixed(1)} km',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
               color: Theme.of(context).colorScheme.primary,
-              size: 20,
             ),
-            const SizedBox(height: 4),
-            Text(
-              '${widget.distance.toStringAsFixed(1)} km',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            Text(
-              'Next pickup',
-              style: TextStyle(
-                fontSize: 10,
-                color: Theme.of(context).colorScheme.outline,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       );
     } else {
       // Expanded state - Show all details
