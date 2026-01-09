@@ -1,46 +1,22 @@
-import { supabase } from './supabaseClient.js';
+import { supabase } from '../supabaseClient.js'; // correct relative path
 
 const Locations = {
   tableName: 'locations',
 
-  // Insert a new location
-  async add({ busNumber, latitude, longitude, speed }) {
+  async add({ busNumber, latitude, longitude, speed, timestamp }) {
     const { data, error } = await supabase
-      .from(this.tableName)
-      .insert([
-        {
-          busNumber,
-          latitude,
-          longitude,
-          speed,
-          timestamp: new Date() // records the time of insertion
-        }
-      ]);
+  .from(this.tableName)
+  .insert([
+    {
+      busnumber: busNumber, // lowercase column
+      latitude,
+      longitude,
+      speed,
+      timestamp: new Date(timestamp)
+    }
+  ])
+  .select(); // <-- add this to return the inserted row
 
-    if (error) throw error;
-    return data;
-  },
-
-  // Get latest location of a bus
-  async getLatest(busNumber) {
-    const { data, error } = await supabase
-      .from(this.tableName)
-      .select('*')
-      .eq('busNumber', busNumber)
-      .order('timestamp', { ascending: false })
-      .limit(1);
-
-    if (error) throw error;
-    return data[0];
-  },
-
-  // Get all locations of a bus
-  async getAll(busNumber) {
-    const { data, error } = await supabase
-      .from(this.tableName)
-      .select('*')
-      .eq('busNumber', busNumber)
-      .order('timestamp', { ascending: true });
 
     if (error) throw error;
     return data;
@@ -48,3 +24,5 @@ const Locations = {
 };
 
 export default Locations;
+
+
