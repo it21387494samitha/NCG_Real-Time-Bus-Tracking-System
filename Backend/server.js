@@ -9,6 +9,8 @@ import bodyParser from 'body-parser';
 import driverRoutes from './routes/driver.routes.js';
 import loginRoutes from './routes/auth.route.js';
 import addingRoutes from './routes/adding.routes.js';
+import locationRoutes from './controllers/locationsController.js';
+
 
 const app = express();
 
@@ -31,6 +33,7 @@ connection.once('open', () => {
 app.use('/driver', driverRoutes);
 app.use('/auth', loginRoutes);
 app.use('/bus-route', addingRoutes);
+app.use('/locations', locationRoutes);
 
 app.listen(PORT, () => {
     console.log( `App is running on ${PORT}`);
